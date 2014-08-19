@@ -26,39 +26,35 @@ app.get('/login',function(req, res){
   res.render('login');
 });
 app.post('/login',function(req, res){
-  // create user
+  // log in user
   console.log('logging in:',req.body);
-  // redirect to /links
+  new User({ username: req.body.username, password: req.body.password }).fetch().then(function(found) {
+    if (found) {
+      // redirect to /links
+      res.render('index');
+    } else {
+      res.render('login');
+    }
+  });
 });
 
 app.get('/signup',function(req, res){
   res.render('signup');
 })
 app.post('/signup',function(req, res){
-  console.log('signing up:',req.body);
   // create user
-  var user = new User({
-    'username': req.body.username.toLowerCase(),
-    'password': req.body.password.toLowerCase()
+  new User({
+    'username': req.body.username,
+    'password': req.body.password
+  }).save().then(function(newUser){
+    res.render('index');
+    // redirect to /links
   });
-
-  user.save();
-  // .then(function(foo){
-  //   console.log("IDK",foo);
-  // });
-
-  // user.save();
-  // .then(function(newUser) {
-  //   console.log("Confiremd");
-  //   Users.add(newUser);
-  //   res.send(200, newUser);
-  // });
-
-  // redirect to /links
 });
 
 
 app.all('*', function(req, res){
+  console.log('NO NO NO',req.body);
   res.redirect('/login');
   // on submit
     // if user is real
