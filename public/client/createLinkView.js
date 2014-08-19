@@ -15,7 +15,7 @@ Shortly.createLinkView = Backbone.View.extend({
   shortenUrl: function(e) {
     e.preventDefault();
     var $form = this.$el.find('form .text');
-    var link = new Shortly.Link({ url: $form.val() })
+    var link = new Shortly.Link({ url: $form.val() });
     link.on('request', this.startSpinner, this);
     link.on('sync', this.success, this);
     link.on('error', this.failure, this);
@@ -30,6 +30,7 @@ Shortly.createLinkView = Backbone.View.extend({
   },
 
   failure: function(model, res) {
+    alert(res);
     this.stopSpinner();
     this.$el.find('.message')
       .html('Please enter a valid URL')
