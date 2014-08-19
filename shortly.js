@@ -4,14 +4,13 @@ var partials = require('express-partials');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 
-
 var db = require('./app/config');
 var Users = require('./app/collections/users');
 var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
-var checkUser = require('./lib/utility').checkUser; // CHECK ME OUT AND DO ME LATER... BABY ;)
+var checkUser = require('./lib/utility').checkUser;
 var app = express();
 
 app.set('views', __dirname + '/views');
@@ -23,6 +22,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+var trusted = false;
 
 app.get('/login',function(req, res){
   res.render('login');
@@ -32,6 +32,7 @@ app.post('/login',function(req, res){
   console.log('logging in:',req.body);
   checkUser(req.body.username, req.body.password,
     function found(){
+      trusted = true;
       res.render('index');
     },
     function notFound(){
@@ -40,22 +41,6 @@ app.post('/login',function(req, res){
   );
 });
 
-      // app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
-      // console.log(req.session);
-      // app.use(function(req, res, next) {
-      //   var sess = req.session;
-      //   if (sess.views) {
-      //     sess.views++;
-      //     res.setHeader('Content-Type', 'text/html');
-      //     res.write('<p>views: ' + sess.views + '</p>');
-      //     res.write('<p>expires in: ' + (sess.cookie.maxAge / 1000) + 's</p>');
-      //     res.end();
-      //   } else {
-      //     sess.views = 1;
-      //     res.end('welcome to the session demo. refresh!');
-      //   }
-      // });
-
 app.get('/signup',function(req, res){
   res.render('signup');
 })
@@ -63,6 +48,7 @@ app.post('/signup',function(req, res){
   // if username already taken
   new User({ username: req.body.username }).fetch().then(function(found) {
       if (found) {
+        trusted = true;
         console.log('ERROR:',found.attributes.username,'already exists.');
         res.set(409);//, 'Conflict. ' + found.attributes.username + ' already exists.');
         res.render('signup');
@@ -79,16 +65,13 @@ app.post('/signup',function(req, res){
   });
 });
 
-app.post('/create',function(req, res){
-  res.render('signup');
-})
-
-app.all('*', function(req, res){
-  console.log('NO NO NO',req.body);
-  res.redirect('/login');
-  // on submit
-    // if user is real
-      // redirect to /links
+app.all('*', function(req, res, next){
+  if(trusted){
+    next();
+  } else {
+    console.log('NO NO NO',req.body);
+    res.redirect('/login');
+  }
 });
 
 app.get('/',
