@@ -22,25 +22,44 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+app.get('/login',function(){
+  res.render('login');
+});
 
-app.get('/', 
+app.get('/signup',function(req, res){
+  res.render('signup');
+})
+
+app.post('/login',function(req, res){
+  // create user
+  // redirect to /links
+});
+
+app.all('*', function(req, res){
+  res.redirect('/login');
+  // on submit
+    // if user is real
+      // redirect to /links
+});
+
+app.get('/',
 function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
+app.get('/create',
 function(req, res) {
   res.render('index');
 });
 
-app.get('/links', 
+app.get('/links',
 function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
 });
 
-app.post('/links', 
+app.post('/links',
 function(req, res) {
   var uri = req.body.url;
 
