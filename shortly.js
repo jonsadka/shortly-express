@@ -22,18 +22,41 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
-app.get('/login',function(){
+app.get('/login',function(req, res){
   res.render('login');
+});
+app.post('/login',function(req, res){
+  // create user
+  console.log('logging in:',req.body);
+  // redirect to /links
 });
 
 app.get('/signup',function(req, res){
   res.render('signup');
 })
-
-app.post('/login',function(req, res){
+app.post('/signup',function(req, res){
+  console.log('signing up:',req.body);
   // create user
+  var user = new User({
+    'username': req.body.username.toLowerCase(),
+    'password': req.body.password.toLowerCase()
+  });
+
+  user.save();
+  // .then(function(foo){
+  //   console.log("IDK",foo);
+  // });
+
+  // user.save();
+  // .then(function(newUser) {
+  //   console.log("Confiremd");
+  //   Users.add(newUser);
+  //   res.send(200, newUser);
+  // });
+
   // redirect to /links
 });
+
 
 app.all('*', function(req, res){
   res.redirect('/login');
